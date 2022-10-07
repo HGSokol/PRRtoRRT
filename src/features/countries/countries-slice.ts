@@ -1,11 +1,29 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { RootState } from 'store';
+import { Country, Extra, Status } from 'types';
 
-export const loadCountries = createAsyncThunk(
+export const loadCountries = createAsyncThunk<
+  {data: Country[]},
+  undefined,
+  { 
+    state: { countries: CountrySlice},
+    extra: Extra,
+    rejectValue: string,
+  }
+>(
   '@@countries/load-countries',
-  (_, {
+  async (_, {
     extra: {client, api},
+    rejectWithValue,
   }) => {
-    return client.get(api.ALL_COUNTRIES)
+    try{
+      return client.get(api.ALL_COUNTRIES)
+    } catch(e) {
+      if(e instanceof Error){
+        return rejectWithValue(e.message)
+      }
+      return rejectWithValue('Unknown error')
+    }
   },
   {
     condition: (_, { getState }) => {
@@ -18,7 +36,13 @@ export const loadCountries = createAsyncThunk(
   }
 );
 
-const initialState = {
+type CountrySlice = {
+  status: Status,
+  error: string | null,
+  list: Country[],
+}
+
+const initialState: CountrySlice = {
   status: 'idle',
   error: null,
   list: [],
@@ -36,7 +60,7 @@ const countrySlice = createSlice({
       })
       .addCase(loadCountries.rejected, (state, action) => {
         state.status = 'rejected';
-        state.error = action.payload || action.meta.error;
+        state.error = action.payload || "Cannot load data"
       })
       .addCase(loadCountries.fulfilled, (state, action) => {
         state.status = 'received';
@@ -48,17 +72,20 @@ const countrySlice = createSlice({
 export const countryReducer = countrySlice.reducer;
 
 // selectors
-export const selectCountriesInfo = (state) => ({
+export const selectCountriesInfo = (state: RootState) => ({
   status: state.countries.status,
   error: state.countries.error,
   qty: state.countries.list.length
 })
 
-export const selectAllCountries = (state) => state.countries.list;
-export const selectVisibleCountries = (state, {search = '', region = ''}) => {
+export const selectAllCountries = (state: RootState) => state.countries.list;
+export const selectVisibleCountries = (state: RootState, {search = '', region = ''}) => {
   return state.countries.list.filter(
     country => (
       country.name.toLowerCase().includes(search.toLowerCase()) && country.region.includes(region)
     )
   )
 }
+
+
+
