@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+import { CountryInfo } from '../types/index'
 const Wrapper = styled.article`
   border-radius: var(--radii);
   background-color: car(--colors-ui-base);
@@ -43,7 +44,11 @@ const CardListItem = styled.li`
   }
 `;
 
-export const Card = ({ img, name, info = [], onClick }) => {
+interface CardProps extends CountryInfo {
+  onClick: (e: React.MouseEvent) => void
+}
+
+export const Card = ({ img, name, info = [], onClick }: CardProps) => {
   return (
     <Wrapper onClick={onClick}>
       <CardImage src={img} alt={name} />

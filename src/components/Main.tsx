@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import styled from 'styled-components';
 import { Container } from './Container';
 
@@ -9,7 +11,11 @@ const Wrapper = styled.main`
   }
 `;
 
-export const Main = ({ children }) => {
+interface MainProps {
+  children: ReactNode
+}
+
+export const Main = ({ children }: MainProps) => {
   return (
     <Wrapper>
       <Container>{children}</Container>

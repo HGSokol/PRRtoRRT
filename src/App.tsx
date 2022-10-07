@@ -14,7 +14,6 @@ function App() {
       <Main>
         <Routes>
           <Route 
-            exact 
             path="/" 
             element={<HomePage />} 
           />
